@@ -40,4 +40,24 @@ __screenshots__/
 
 # 백엔드
 
+# 가상환경
 venv
+
+# 데이터 파일 (원본 엑셀만 제외, JSON은 커밋)
+data/*.xls
+data/*.xlsx
+data/*.csv
+!data/categories.json
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python

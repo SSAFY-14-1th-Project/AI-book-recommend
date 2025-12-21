@@ -113,6 +113,7 @@ class BookRating(models.Model):
         verbose_name = '도서 평점'
         verbose_name_plural = '도서 평점'
         constraints = [
+            # 식별관계 부여
             models.UniqueConstraint(
                 fields=['user', 'book'],
                 name='unique_user_book_rating'
