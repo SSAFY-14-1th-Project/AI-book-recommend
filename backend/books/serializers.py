@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from .models import Book, BookRating
-
+from .models import Book
 
 
 # 1. 베스트셀러/일반 목록용 (북마크 정보 없음)
-class BookSerializer(serializers.ModelSerializer):
+class BookPreviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank')      
@@ -14,11 +13,6 @@ class BookSerializer(serializers.ModelSerializer):
 class BookDetailSerializer(serializers.ModelSerializer):
     # DB 필드엔 없지만 응답에는 포함될 가상 필드
     is_bookmarked = serializers.SerializerMethodField()
-
-    # class Meta:
-    #     model = Book
-    #     # 모든 모델 필드 + 커스텀 필드(is_bookmarked)를 포함합니다.
-    #     fields = '__all__' 
 
     def get_is_bookmarked(self, obj):
         # 뷰에서 전달된 request 객체를 가져옵니다.
@@ -39,31 +33,7 @@ class BookDetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank', 'is_bookmarked')
 
 
-# 3. 50개씩 분리되는 베스트셀러용 serializer
-class BookListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
-        exclude = ('item_id', 'description')
-    
-
-
-
-
-
-
-# class BookReviewRankSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Book
-#         fields = ('cover', 'title', 'author')
-
-
-# class BookRatingSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = BookRating
-#         fields = '__all__'
-
-
-# # 알고리즘 신
+# 4. 알고리즘 신 (검색)
 class BookSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
@@ -73,4 +43,18 @@ class BookSearchSerializer(serializers.ModelSerializer):
             "author",
             "category",
             "adult",
+        ]
+
+
+# 3. 베스트 셀러 목록들
+class BookBestSellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = [
+            "id",
+            "title",
+            "author",
+            "category",
+            "adult",
+            'best_rank',
         ]

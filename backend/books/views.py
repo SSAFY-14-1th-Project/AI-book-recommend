@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.shortcuts import get_object_or_404, get_list_or_404
 
-from .serializers import BookPreviewSerializer, BookDetailSerializer, BookSearchSerializer
+from .serializers import BookPreviewSerializer, BookDetailSerializer, BookSearchSerializer, BookBestSellerSerializer
 from .models import Book, Bookmark
 
 from rest_framework.views import APIView
@@ -18,7 +18,7 @@ from math import ceil
 
 # Create your views here.
 
-
+# 도서 메인
 @api_view(['GET'])
 def book_list(request):
     if request.method == 'GET':
@@ -32,6 +32,7 @@ def book_list(request):
         return Response(serializer.data)
 
 
+# 도서 상세
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def book_detail(request, id):
@@ -41,6 +42,7 @@ def book_detail(request, id):
         return Response(serializer.data)
 
 
+# 도서 북마크
 # 테스트 방법 : /api/v1/books/1/bookmarks/ 에서 Header에 직접
 # Authorization을 하고 POST 요청을 보내면 됨
 @api_view(['POST'])
@@ -60,12 +62,6 @@ def book_mark(request, id):
         # 없다면 생성 (북마크 등록)
         Bookmark.objects.create(user=user, book=book)
         return Response({'is_bookmarked': True, 'message': '북마크가 등록되었습니다.'})
-
-
-@api_view(['GET'])
-def book_bestseller(request):
-    
-    pass
 
 
 # 알고리즘 신 - 도서 검색
@@ -146,4 +142,31 @@ class BookSearchAPIView(APIView):
         page = paginator.paginate_queryset(queryset, request)    # 쿼리셋을 페이지네이션 적용 (현재 페이지에 해당하는 데이터만 반환)
         serializer = BookSearchSerializer(page, many=True)       # 페이지네이션된 데이터를 직렬화 (BookSearchSerializer 사용)
         return paginator.get_paginated_response(serializer.data) # 페이지네이션된 응답 반환
+
+
+# 베스트 셀러 도서 목록 확인 - 50개 단위
+class BestSellerAPIView(APIView):
+    def get(self, request):
+        # 1. 순위 데이터가 있는 도서만 가져와서 순위순(오름차순) 정렬
+        queryset = Book.objects.filter(best_rank__isnull=False).order_by('best_rank')
+
+        # 2. 기존 BookPagination 클래스 그대로 사용
+        paginator = BookPagination()
+        
+        # 3. [핵심] 검색(25개)과 달리 베스트셀러는 50개씩 보여주기 위해 인스턴스 설정만 변경
+        paginator.page_size = 50 
+        
+        # 4. 페이지네이션 적용
+        page = paginator.paginate_queryset(queryset, request)
+        if page is not None:
+            # 5. 기존 BookSearchSerializer 그대로 사용
+            serializer = BookBestSellerSerializer(page, many=True)
+            # 이미 구현하신 total_pages가 포함된 응답이 나갑니다.
+            return paginator.get_paginated_response(serializer.data)
+
+        # 데이터가 없을 경우를 대비한 기본 응답
+        serializer = BookBestSellerSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 
