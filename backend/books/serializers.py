@@ -30,7 +30,7 @@ class BookDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank', 'is_bookmarked')
+        fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank', 'best_rank', 'rating_count', 'is_bookmarked')
 
 
 # 4. 알고리즘 신 (검색)

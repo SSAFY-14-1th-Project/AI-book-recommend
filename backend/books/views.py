@@ -34,7 +34,6 @@ def book_list(request):
 
 # 도서 상세
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def book_detail(request, id):
     book = get_object_or_404(Book, pk=id)
     if request.method == 'GET':
