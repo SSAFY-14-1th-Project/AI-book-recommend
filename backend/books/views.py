@@ -5,7 +5,7 @@ from django.db.models import Q
 from math import ceil
 
 from .models import Book
-from .serializers import BookSearchSerializer
+from .serializers import BookSearchSerializer, BookSerializer
 
 
 class BookPagination(PageNumberPagination):
@@ -83,3 +83,27 @@ class BookSearchAPIView(APIView):
         serializer = BookSearchSerializer(page, many=True)       # 페이지네이션된 데이터를 직렬화 (BookSearchSerializer 사용)
         return paginator.get_paginated_response(serializer.data) # 페이지네이션된 응답 반환
 
+class BookDetailAPIView(APIView):
+    def get(self, request, pk):
+        try:
+            book = Book.objects.get(id=pk)  # 도서 ID로 조회
+        except Book.DoesNotExist:
+            return Response({"error": "Book not found"}, status=404)
+
+        # 로그인 상태 확인
+        user = request.user
+
+        # 로그인하지 않은 경우
+        if not user.is_authenticated:
+            if book.adult:  # 성인 도서인 경우 접근 불가
+                return Response({"error": "로그인 후 성인 도서에 접근할 수 있습니다."}, status=403)
+
+        # 로그인한 경우
+        else:
+            if user.age is None or user.age < 20:  # 나이가 없거나 20세 미만인 경우
+                if book.adult:  # 성인 도서인 경우 접근 불가
+                    return Response({"error": "성인 도서는 20세 이상만 접근 가능합니다."}, status=403)
+                
+        # 로그인한 사용자이거나, 적절한 나이 및 성인 도서 접근 조건을 만족하는 경우
+        serializer = BookSerializer(book, context={'request': request})
+        return Response(serializer.data)
