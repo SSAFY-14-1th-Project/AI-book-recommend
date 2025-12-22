@@ -2,7 +2,7 @@ import requests
 import time
 import json
 
- = ''
+API_KEY = ''
 
 url = 'http://www.aladin.co.kr/ttb/api/ItemList.aspx'
 
@@ -20,7 +20,7 @@ for country, cat_id in CATEGORY.items():
     for qt in QueryType:
         for page in range(1, 21):
             params = {
-                "ttbkey": ,
+                "ttbkey": API_KEY,
                 "QueryType": qt,
                 "MaxResults": 50,
                 "start": page,
