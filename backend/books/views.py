@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.shortcuts import get_object_or_404, get_list_or_404
 
-from .serializers import BookSerializer, BookDetailSerializer, BookSearchSerializer
+from .serializers import BookPreviewSerializer, BookDetailSerializer, BookSearchSerializer
 from .models import Book, Bookmark
 
 from rest_framework.views import APIView
@@ -28,17 +28,16 @@ def book_list(request):
         queryset = Book.objects.filter(best_rank__isnull=False).order_by('best_rank')[:10]
         # 데이터가 없으면 자동으로 404를 일으키고, 있으면 리스트를 반환
         books = get_list_or_404(queryset)
-        serializer = BookSerializer(books, many=True)
+        serializer = BookPreviewSerializer(books, many=True)
         return Response(serializer.data)
 
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def book_detail(request, id):
     book = get_object_or_404(Book, pk=id)
     if request.method == 'GET':
         serializer = BookDetailSerializer(book, context={'request': request})
-        # print(serializer.data)
         return Response(serializer.data)
 
 
@@ -63,8 +62,10 @@ def book_mark(request, id):
         return Response({'is_bookmarked': True, 'message': '북마크가 등록되었습니다.'})
 
 
-# @api_view(['GET'])
-# def book_bestseller_list(request):
+@api_view(['GET'])
+def book_bestseller(request):
+    
+    pass
 
 
 # 알고리즘 신 - 도서 검색
@@ -131,7 +132,7 @@ class BookSearchAPIView(APIView):
         user = request.user
         if not user.is_authenticated:
             queryset = queryset.filter(adult=False)          # 로그인이 안 되어 있으면 성인 도서를 제외
-        elif user.age < 20:
+        elif user.age and user.age < 20:
             queryset = queryset.filter(adult=False)          # 나이가 20세 미만이면 성인 도서를 제외
         else:
             adult_param = request.query_params.get("adult")  # 로그인한 유저가 성인일 경우, 성인 도서 필터링 (파라미터가 있으면 체크)
