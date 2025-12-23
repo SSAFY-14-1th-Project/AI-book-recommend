@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework import generics, status
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework import status
 
 from django.db.models import Q
 from .models import Trade
@@ -11,7 +11,17 @@ from .serializers import TradeSerializer, TradeDetailSerializer, TradeSearchSeri
 from .permissions import IsOwnerOrReadOnly  # 1. 권한 가져오기 (게시글 삭제를 위함)
 from math import ceil
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
+
+# DRF 할건 해야제..
+from books.models import Book
+from rest_framework.decorators import api_view
+from rest_framework import status
+
+# permission Decorators
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 
 class TradePagination(PageNumberPagination):
     page_size = 2                   # 한 페이지당 개수 (size를 요청 안 했을 경우, 한 페이지당 개수)
@@ -138,23 +148,46 @@ class TradeSearchAPIView(APIView):
         return paginator.get_paginated_response(serializer.data) # 페이지네이션된 응답 반환
 
 
+# 중고거래 게시글 목록 조회
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def trade_list(request):
+    """
+    GET /api/trades/
+    중고거래 게시글 목록 조회
+    """
+    # select_related => ORM 최적화 가능
+    # 외래키로 연결된 객체를 JOIN으로 한 번에 가져오기
+    # ManyToMany Field는 역참조 관계로 가져올 수 없음
+    trades = get_list_or_404(
+        Trade.objects
+        .select_related('user', 'book', 'book__category')
+        .order_by('-created_at')
+    )
 
-# generices를 쓰지 않고 기본 APIView 만 썼으면 머리는 좋아지나 효율이 안좋아질뻔;;
-# 여기엔 DRF가 미리 만들어둔 클래스가 많음
-# 아쉽게도 rest-framework에 있는게 아니네
-# class TradeListCreateView(generics.ListCreateAPIView):
-class TradeListCreateView(ListCreateAPIView):
-    """게시글 목록 조회 및 등록"""
-    # GET, POST 요청만 받을 수 있음
-    # 최신 생성 글부터 확인
-    queryset = Trade.objects.all().order_by('-created_at')
-    serializer_class = TradeSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly] # 조회는 누구나, 등록은 로그인 유저만
-    pagination_class = TradePagination
+    serializer = TradeSerializer(trades, many=True)
+    return Response(serializer.data)
 
-    def perform_create(self, serializer):
-        # 평점 등록 때처럼, 로그인한 유저를 판매자로 강제 지정!
-        serializer.save(user=self.request.user)
+
+# 중고거래 게시글 생성 - 특정 책으로 생성
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def trade_create(request, book_pk):
+    """
+    POST /api/trades/create/<book_pk>/
+    특정 책으로 중고거래 게시글 생성
+    """
+    # book_pk로 책 가져오기
+    book = get_object_or_404(Book, pk=book_pk)
+
+    serializer = TradeSerializer(data=request.data)
+
+    if serializer.is_valid(raise_exception=True):
+        serializer.save(
+            user=request.user,
+            book=book
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # class TradeDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -171,6 +204,8 @@ class TradeDetailView(RetrieveUpdateDestroyAPIView):
     # urls.py에서 variable routing으로 <int:id>를 사용했기에 id를 사용해서
     # 글을 찾겠다는 뜻
     lookup_field = 'id'
+    # DB에서 Lookup Field로 찾을 id => trade_id (url에서의 id값)
+    lookup_url_kwarg = 'trade_id'
     # [조회] GET 요청이 오면 이 함수가 실행됨
     # HTTP method 와 함수의 연결 관계
     # 1. GET : retrieve

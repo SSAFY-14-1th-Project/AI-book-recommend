@@ -1,12 +1,14 @@
 from django.urls import path
-from .views import TradeListCreateView, TradeDetailView, TradeSearchAPIView
-
+from .views import TradeDetailView, TradeSearchAPIView
+from . import views
 app_name = 'trades'
 
 urlpatterns = [
     path('search/', TradeSearchAPIView.as_view(), name='search'),
-    # 게시글 목록 및 등록: /api/trades/
-    path('', TradeListCreateView.as_view(), name='trade_list_create'),
+    # 목록 조회
+    path('', views.trade_list, name='trade_list'),
+    # 게시글 생성 (book_pk 기반)
+    path('create/<int:book_pk>/', views.trade_create, name='trade_create'),
     # 게시글 상세, 수정, 삭제: /api/trades/<id>/
-    path('<int:id>/', TradeDetailView.as_view(), name='trade_detail'),
+    path('<int:trade_id>/', TradeDetailView.as_view(), name='trade_detail'),
 ]

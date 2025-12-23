@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from accounts.serializers import UserSimpleSerializer  # 이미 만들어진 UserSerializer
 from books.serializers import BookTradeSerializer # 도서 요약 정보용
-from .models import Trade
+from .models import Trade, Book
 
 
 class TradeSearchSerializer(serializers.ModelSerializer):
@@ -38,6 +38,7 @@ class TradeSerializer(serializers.ModelSerializer):
     # book -> adult, title, price_standard, category 추가
     # book = BookTradeSerializer(read_only=True)
 
+    book = BookTradeSerializer(read_only=True)
     
     class Meta:
         model = Trade
@@ -73,3 +74,25 @@ class TradeDetailSerializer(serializers.ModelSerializer):
         ]
         # [중요] 상세 페이지에서도 조작 방지를 위해 반드시 추가해야 함! - 회고록에 쓸거 생겼노 ㅎ
         read_only_fields = ['view_count', 'created_at', 'updated_at']
+
+
+# 중고거래 요약용 serializer
+class TradePreviewSerializer(serializers.ModelSerializer):
+    # seller = serializers.CharField(source='user.nickname', read_only=True)
+
+    seller = serializers.SerializerMethodField()
+
+    def get_seller(self, obj):
+        return obj.user.nickname
+    
+    class Meta:
+        model = Trade
+        fields = [
+            'id',
+            'title',
+            'price',
+            'status',
+            'region',
+            'seller',
+            'created_at',
+        ]
