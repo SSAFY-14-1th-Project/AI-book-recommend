@@ -7,7 +7,7 @@ from accounts.serializers import UserSerializer
 class BookPreviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank')      
+        fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank', 'adult')      
 
 
 # 도서 평점을 위한 serializer
@@ -42,7 +42,7 @@ class BookDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank', 'best_rank', 'rating_count', 'average_rating', 'is_bookmarked')
+        fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank', 'best_rank', 'rating_count', 'average_rating', 'is_bookmarked', 'adult')
 
 
 # 4. 알고리즘 신 (검색)
@@ -70,3 +70,11 @@ class BookBestSellerSerializer(serializers.ModelSerializer):
             "adult",
             'best_rank',
         ]
+
+
+# 중고거래 페이지용
+class BookTradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ('id', 'cover', 'title', 'customer_review_rank', 'adult', 'price_standard', 'category')  
+
