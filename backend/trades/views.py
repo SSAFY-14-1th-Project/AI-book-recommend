@@ -1,11 +1,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.db.models import Q
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework import generics, status
 
+from django.db.models import Q
 from .models import Trade
-from .serializers import TradeSearchSerializer
+from .serializers import TradeSerializer, TradeDetailSerializer, TradeSearchSerializer
+from .permissions import IsOwnerOrReadOnly  # 1. 권한 가져오기 (게시글 삭제를 위함)
 from math import ceil
+
+from django.shortcuts import get_object_or_404
 
 class TradePagination(PageNumberPagination):
     page_size = 2                   # 한 페이지당 개수 (size를 요청 안 했을 경우, 한 페이지당 개수)
@@ -132,14 +138,6 @@ class TradeSearchAPIView(APIView):
         page = paginator.paginate_queryset(queryset, request)    # 쿼리셋을 페이지네이션 적용 (현재 페이지에 해당하는 데이터만 반환)
         serializer = TradeSearchSerializer(page, many=True)      # 페이지네이션된 데이터를 직렬화 (BookSearchSerializer 사용)
         return paginator.get_paginated_response(serializer.data) # 페이지네이션된 응답 반환
-from rest_framework import generics, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.shortcuts import get_object_or_404
-from .models import Trade
-from .serializers import TradeSerializer, TradeDetailSerializer
-from .permissions import IsOwnerOrReadOnly  # 1. 권한 가져오기 (게시글 삭제를 위함)
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 # generices를 쓰지 않고 기본 APIView 만 썼으면 머리는 좋아지나 효율이 안좋아질뻔;;
 # 여기엔 DRF가 미리 만들어둔 클래스가 많음
