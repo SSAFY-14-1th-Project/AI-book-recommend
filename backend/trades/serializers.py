@@ -1,7 +1,30 @@
 from rest_framework import serializers
+from accounts.serializers import UserSimpleSerializer  # 이미 만들어진 UserSerializer
+from books.serializers import BookTradeSerializer # 도서 요약 정보용
 from .models import Trade
-from accounts.serializers import UserSerializer, UserSimpleSerializer  # 이미 만들어진 UserSerializer
-from books.serializers import BookPreviewSerializer, BookTradeSerializer # 도서 요약 정보용
+
+
+class TradeSearchSerializer(serializers.ModelSerializer):
+    book_title = serializers.CharField(source='book.title', read_only=True)
+    book_adult = serializers.CharField(source='book.adult', read_only=True)
+    seller = serializers.CharField(source='user.nickname', read_only=True)
+
+    class Meta:
+        model = Trade
+        fields = [
+            'id',
+            'title',
+            'content',
+            'sale_type',
+            'price',
+            'region',
+            'status',
+            'book_title',
+            'book_adult',
+            'seller',
+            'image',
+            'created_at',
+        ]
 
 class TradeSerializer(serializers.ModelSerializer):
     """게시글 등록 및 목록 조회용"""

@@ -80,8 +80,7 @@ class BookPagination(PageNumberPagination):
                 page_size = min(int(size), self.max_page_size)  # 최대 페이지 크기로 제한
             except ValueError:
                 pass  # 잘못된 값이 들어올 경우 기본 page_size 유지
-        # 전체 데이터 수를 바탕으로 총 페이지 수 계산
-        total_pages = ceil(self.page.paginator.count / float(page_size))
+        total_pages = ceil(self.page.paginator.count / float(page_size)) # 전체 데이터 수를 바탕으로 총 페이지 수 계산
 
         # 기존 응답에 'total_pages'를 추가
         return Response({
@@ -123,16 +122,21 @@ class BookSearchAPIView(APIView):
         # =====================
         # 🔞 성인 도서 필터
         # =====================
-        # 로그인한 사용자 정보 가져오기
         user = request.user
-        if not user.is_authenticated:
-            queryset = queryset.filter(adult=False)          # 로그인이 안 되어 있으면 성인 도서를 제외
-        elif user.age and user.age < 20:
-            queryset = queryset.filter(adult=False)          # 나이가 20세 미만이면 성인 도서를 제외
-        else:
-            adult_param = request.query_params.get("adult")  # 로그인한 유저가 성인일 경우, 성인 도서 필터링 (파라미터가 있으면 체크)
-            if adult_param != "true":
-                queryset = queryset.filter(adult=False)
+
+        # 기본값: 성인 도서 제외
+        exclude_adult = True
+
+        if user.is_authenticated:
+            # 나이가 있고, 20세 이상인 경우만 성인 가능성 열어둠
+            if user.age is not None and user.age >= 20:
+                adult_param = request.query_params.get("adult")
+                if adult_param == "true":
+                    exclude_adult = False
+
+        # 성인 도서 제외가 필요한 경우
+        if exclude_adult:
+            queryset = queryset.filter(book__adult=False)
 
         # =====================
         # 📄 페이지네이션

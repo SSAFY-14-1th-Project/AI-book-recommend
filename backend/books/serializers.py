@@ -1,3 +1,4 @@
+# books/serializers.py
 from rest_framework import serializers
 from .models import Book, BookRating
 # accounts 앱에 이미 정의된 UserSerializer를 가져옵니다.
