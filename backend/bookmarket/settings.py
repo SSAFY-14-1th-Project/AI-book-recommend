@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
     # Local apps
     'accounts',
     'books',
@@ -192,8 +191,8 @@ CORS_ALLOWED_ORIGINS = [
 # 개발 환경에서 모든 origin 허용 (프로덕션에서는 사용 금지!)
 # CORS_ALLOW_ALL_ORIGINS = True
 
-# 쿠키를 포함한 요청 허용
-CORS_ALLOW_CREDENTIALS = True
+# # 쿠키를 포함한 요청 허용
+# CORS_ALLOW_CREDENTIALS = True
 
 # 허용할 HTTP 메서드
 CORS_ALLOW_METHODS = [
