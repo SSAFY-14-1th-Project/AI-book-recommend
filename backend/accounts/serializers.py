@@ -8,7 +8,11 @@ User = get_user_model()
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
-    book_mbti = serializers.IntegerField(write_only=True)
+    book_mbti = serializers.PrimaryKeyRelatedField(
+        queryset=BookMBTI.objects.all(),
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = User
@@ -17,19 +21,13 @@ class SignupSerializer(serializers.ModelSerializer):
             'email': {'required': False},
             'nickname': {'required': False},
             'age': {'required': False},
+            'book_mbti': {'required': False},
         }
 
     def validate(self, data):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError("비밀번호가 일치하지 않습니다.")
-        
         return data
-    
-    # 🔥 MBTI 검증은 필드 단위로 분리
-    def validate_book_mbti(self, value):
-        if not BookMBTI.objects.filter(id=value).exists():
-            raise serializers.ValidationError("존재하지 않는 MBTI ID입니다.")
-        return value
 
     def create(self, validated_data):
         validated_data.pop('password_confirm')
@@ -40,19 +38,28 @@ class SignupSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             nickname=validated_data.get('nickname'),
             age=validated_data.get('age'),
-            book_mbti=validated_data['book_mbti'],
+            book_mbti=validated_data.get('book_mbti'),
         )
         return user
 
 
 class UserSerializer(serializers.ModelSerializer):
+    book_mbti = serializers.CharField(source="book_mbti.code", read_only=True)
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'nickname', 'age', 'book_mbti')
         read_only_fields = ('id',)
 
+
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     """프로필 수정용 Serializer"""
+    book_mbti = serializers.PrimaryKeyRelatedField(
+        queryset=BookMBTI.objects.all(),
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = User
         fields = ('email', 'nickname', 'age', 'book_mbti')
@@ -68,11 +75,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if value and User.objects.exclude(pk=user.pk).filter(nickname=value).exists():
             raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
-        return value
-
-    def validate_book_mbti(self, value):
-        if not BookMBTI.objects.filter(id=value).exists():
-            raise serializers.ValidationError("존재하지 않는 MBTI ID입니다.")
         return value
 
 # 중고거래 조회용
