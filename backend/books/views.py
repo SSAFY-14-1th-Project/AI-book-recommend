@@ -181,21 +181,45 @@ class BookSearchAPIView(APIView):
         user = request.user
 
         # 기본값: 성인 도서 제외
-        exclude_adult = True
+        # exclude_adult = True
+
+        # print(request.query_params["adult"] == "true")
+        # print(request.query_params)
 
         if user.is_authenticated:
             # 나이가 있고, 20세 이상인 경우만 성인 가능성 열어둠
             if user.age is not None and user.age >= 20:
                 adult_param = request.query_params.get("adult")
-                if adult_param == "true":
-                    exclude_adult = False
+                if adult_param:
+                    if adult_param in ("true", 1, "True"):
+                        # exclude_adult = False
+                        queryset = queryset.filter(adult=True)
+                    elif adult_param in ("false", 0, "False"):
+                        # exclude_adult = True
+                        queryset = queryset.filter(adult=False)
+            else:
+                queryset = queryset.filter(adult=False)
+                # else:
+                    # queryset = queryset.all()
+        else:
+            queryset = queryset.filter(adult=False)
+                    
+                # 성인이 성인이 아닌 도서를 검색하는 상황
+
+                # # query param은 문자열 형태로 저장되어 있음
+                # if adult_param and adult_param.lower() in ("true", "1", "yes", "on"):
+                #     exclude_adult = False
+                # # if adult_param == "true":
+                # #     exclude_adult = False
 
         # 성인 도서 제외가 필요한 경우
         # if exclude_adult:
         #     queryset = queryset.filter(book__adult=False)
         # 여기 좀 햇갈린다.
-        if exclude_adult:
-            queryset = queryset.filter(adult=False)
+        # if exclude_adult:
+        #     queryset = queryset.filter(adult=False)
+        # else:
+        #     queryset = queryset.filter(adult=True)
 
         # =====================
         # 📄 페이지네이션
