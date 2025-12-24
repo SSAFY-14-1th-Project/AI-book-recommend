@@ -22,6 +22,8 @@ from rest_framework import status
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+# DRF-spectacular
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 class TradePagination(PageNumberPagination):
     page_size = 2                   # 한 페이지당 개수 (size를 요청 안 했을 경우, 한 페이지당 개수)
@@ -170,6 +172,12 @@ def trade_list(request):
 
 
 # 중고거래 게시글 생성 - 특정 책으로 생성
+# read_only = True 필드는 Swagger에서 자동으로 입력 불가로 처리함
+@extend_schema(
+    request=TradeSerializer,
+    responses=TradeSerializer,
+    summary="중고거래 게시글 생성"
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def trade_create(request, book_pk):
@@ -188,6 +196,7 @@ def trade_create(request, book_pk):
             book=book
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 # class TradeDetailView(generics.RetrieveUpdateDestroyAPIView):

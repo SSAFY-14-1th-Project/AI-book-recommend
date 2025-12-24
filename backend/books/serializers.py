@@ -16,7 +16,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class BookPreviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ('id', 'best_rank', 'cover', 'title', 'customer_review_rank', 'adult')      
+        fields = '__all__'     
 
 
 # 도서 평점을 위한 serializer
@@ -76,27 +76,14 @@ class BookDetailSerializer(serializers.ModelSerializer):
 class BookSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = [
-            "id",
-            "title",
-            "author",
-            "category",
-            "adult",
-        ]
+        fields = '__all__'
 
 
 # 3. 베스트 셀러 목록들
 class BookBestSellerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = [
-            "id",
-            "title",
-            "author",
-            "category",
-            "adult",
-            'best_rank',
-        ]
+        fields = '__all__'
 
 
 # 중고거래 페이지용

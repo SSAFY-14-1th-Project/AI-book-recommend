@@ -19,6 +19,9 @@ from .models import Book, Bookmark, BookRating
 from math import ceil
 
 
+# drf spectacular 사용
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
 # Create your views here.
 
 # 도서 메인
@@ -36,6 +39,10 @@ def book_list(request):
 
 
 # 도서 상세
+@extend_schema(
+    responses=BookDetailSerializer,
+    summary="도서 상세 조회"
+)
 @api_view(['GET'])
 def book_detail(request, id):
     book = get_object_or_404(Book, pk=id)
@@ -47,6 +54,35 @@ def book_detail(request, id):
 # 도서 북마크
 # 테스트 방법 : /api/v1/books/1/bookmarks/ 에서 Header에 직접
 # Authorization을 하고 POST 요청을 보내면 됨
+# request body는 필요 없음
+# TIP : swagger-ui url로 이동하여 실행 시 Authorize에 login할 사용자의
+# Token 값을 집어넣기
+@extend_schema(
+    summary="도서 북마크 토글",
+    description="인증된 사용자가 특정 도서를 북마크/해제합니다.",
+    parameters=[
+        OpenApiParameter(
+            name="id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="북마크할 도서 ID",
+            required=True,
+        ),
+    ],
+    request=None,  # ⭐ body 없음
+    responses={
+        200: OpenApiResponse(
+            response={
+                "type": "object",
+                "properties": {
+                    "is_bookmarked": {"type": "boolean"},
+                    "message": {"type": "string"},
+                },
+            },
+            description="북마크 처리 결과"
+        )
+    },
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated]) # 로그인한 사용자만 가능
 def book_mark(request, id):
@@ -97,6 +133,23 @@ class BookPagination(PageNumberPagination):
 
 # 알고리즘 신 - 도서 검색
 class BookSearchAPIView(APIView):
+    # 중요
+    # GET + query_params는 Serializer로 나오지 않음
+    # OpenApiParameter로 직접 선언해야 함
+    # Query params 전부 노출됨
+    # 체크 박스 / enum 모두 표시
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("search", str, required=False),
+            OpenApiParameter("searchType", str, required=False, enum=["title", "author"]),
+            OpenApiParameter("categories", int, many=True, required=False),
+            OpenApiParameter("adult", bool, required=False),
+            OpenApiParameter("page", int, required=False),
+            OpenApiParameter("size", int, required=False),
+        ],
+        responses=BookSearchSerializer,
+        summary="도서 검색"
+    )
     def get(self, request):
         # 전체 Book 객체를 조회 (기본 쿼리셋)
         queryset = Book.objects.all()
@@ -138,8 +191,11 @@ class BookSearchAPIView(APIView):
                     exclude_adult = False
 
         # 성인 도서 제외가 필요한 경우
+        # if exclude_adult:
+        #     queryset = queryset.filter(book__adult=False)
+        # 여기 좀 햇갈린다.
         if exclude_adult:
-            queryset = queryset.filter(book__adult=False)
+            queryset = queryset.filter(adult=False)
 
         # =====================
         # 📄 페이지네이션
@@ -177,6 +233,34 @@ class BestSellerAPIView(APIView):
 
 class BookRatingView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="도서 평점 등록/수정",
+        description="인증된 사용자가 도서에 평점을 남기거나 수정합니다.",
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="평점을 등록할 도서 ID",
+                required=True,
+            )
+        ],
+        request=BookRatingSerializer,   # ⭐ score 여기서 등장
+        responses={
+            200: OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {
+                        "message": {"type": "string"},
+                        "average_rating": {"type": "number"},
+                        "rating_count": {"type": "integer"},
+                    },
+                },
+                description="평점 등록 결과"
+            )
+        },
+    )
 
     def post(self, request, id):
         # 1. 어떤 책인지 URL에서 가져옴
