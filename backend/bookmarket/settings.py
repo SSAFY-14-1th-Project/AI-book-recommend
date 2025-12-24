@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'accounts',
     'books',
     'trades',
+    'channels',
+    'chat',
     # packages
     'rest_framework',
     'rest_framework_simplejwt',
@@ -225,3 +227,14 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+ASGI_APPLICATION = 'bookmarket.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
