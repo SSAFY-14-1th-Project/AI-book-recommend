@@ -100,7 +100,7 @@ class BookTradeSerializer(serializers.ModelSerializer):
 class BookAutocompleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'cover']
         
 
     
@@ -111,6 +111,7 @@ class BookAIInputSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
+            "cover",
             "category",
             "author",
             "publisher",

@@ -5,7 +5,11 @@ import axios from 'axios'
 // axios 인스턴스
 const client = axios.create({
   baseURL: import.meta.env.VITE_SERVER_URL || 'http://localhost:8000',
-  timeout: 10000, // API 응답 최대시간(10초)
+  timeout: 20000, // API 응답 최대시간(10초)
+  paramsSerializer: {
+    // 배열 파라미터를 ?categories=1&categories=2 형식으로 변환
+    indexes: null, // ?categories=1&categories=2 (인덱스 없이)
+  },
 })
 
 // 요청 인터셉터: 매 요청마다 최신 토큰을 헤더에 추가

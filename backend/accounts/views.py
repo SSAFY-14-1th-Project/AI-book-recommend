@@ -99,6 +99,7 @@ def update_profile(request):
         context={'request': request}
     )
     if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
+        user = serializer.save()
+        # 업데이트된 유저 정보를 UserSerializer로 반환
+        return Response(UserSerializer(user).data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

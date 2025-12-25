@@ -44,7 +44,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    book_mbti = serializers.CharField(source="book_mbti.code", read_only=True)
+    book_mbti = serializers.CharField(source="book_mbti.code", read_only=True, allow_null=True)
 
     class Meta:
         model = User
