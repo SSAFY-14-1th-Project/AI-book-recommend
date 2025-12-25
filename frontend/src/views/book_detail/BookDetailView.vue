@@ -251,7 +251,6 @@ const userRating = ref(null) // 사용자가 이미 준 평점
 
 onMounted(async () => {
   const data = await getBookDetail(route.params.id)
-  console.log(data)
   book.value = data
   // 사용자가 이미 준 평점이 있다면 userRating에 설정
   userRating.value = data.userRating
@@ -265,7 +264,6 @@ const handleBookmark = async (id) => {
   }
 
   const response = await toggleBookmark(id)
-  console.log(response.message)
   book.value.isBookmarked = response.isBookmarked
 
   // 토스트 메시지
@@ -292,7 +290,6 @@ const handleRating = async () => {
 
   try {
     const response = await rateBook(book.value.id, selectedRating.value)
-    console.log(response.message)
 
     // 평점 정보 업데이트
     userRating.value = selectedRating.value

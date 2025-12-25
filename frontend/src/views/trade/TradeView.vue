@@ -252,8 +252,6 @@ const fetchTrades = async () => {
       }
     }
 
-    console.log(params)
-
     const response = await searchTrades(params)
 
     trades.value = response.data.results || []

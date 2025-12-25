@@ -105,6 +105,5 @@ export const autocompleteBook = async (query) => {
  */
 export const getAIRecommendation = async (params) => {
   const response = await client.post('/api/books/recommend/', params)
-  console.log(response)
   return response.data
 }

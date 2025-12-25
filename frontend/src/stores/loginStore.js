@@ -18,7 +18,6 @@ export const useLoginStore = defineStore('login', () => {
 
   // 유저 정보 저장
   const setUser = (userData) => {
-    console.log(JSON.stringify(userData))
     user.value = userData
 
     const userString = JSON.stringify(userData)
