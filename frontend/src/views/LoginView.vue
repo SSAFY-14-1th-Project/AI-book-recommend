@@ -58,10 +58,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useLoginStore } from '@/stores/loginStore'
-import { login } from '@/api/accounts'
+import { login, getProfile } from '@/api/accounts'
 
+const route = useRoute()
 const router = useRouter()
 const loginStore = useLoginStore()
 
@@ -85,14 +86,15 @@ const handleLogin = async () => {
     // 2. Store에 토큰 저장
     loginStore.setTokens(data.access, data.refresh)
 
-    // 3. 사용자 정보가 있다면 저장
-    if (data.user) {
-      loginStore.user = data.user
-      localStorage.setItem('user', JSON.stringify(data.user))
-    }
+    // 3. 프로필 API로 사용자 정보 가져오기
+    const userInfo = await getProfile()
+    loginStore.user = userInfo
+    localStorage.setItem('user', JSON.stringify(userInfo))
 
     // 4. 홈 페이지로 이동
-    router.push('/')
+    // router.push('/')
+    const redirect = route.query.redirect || '/'
+    router.push(redirect)
   } catch (error) {
     // 에러 처리
     console.error('로그인 실패:', error)

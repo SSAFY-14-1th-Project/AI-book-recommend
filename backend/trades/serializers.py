@@ -132,3 +132,19 @@ class TradePreviewSerializer(serializers.ModelSerializer):
             'seller',
             'created_at',
         ]
+
+
+class TradeEditSerializer(serializers.ModelSerializer):
+    """게시글 수정 페이지용 - 본인에게 kakao_chat_url 포함"""
+    user = UserSimpleSerializer(read_only=True)
+    book = BookTradeSerializer(read_only=True)
+    
+    class Meta:
+        model = Trade
+        fields = [
+            'id', 'user', 'book', 'title', 'content', 
+            'sale_type', 'price', 'region', 'status', 
+            'image', 'kakao_chat_url', 'view_count', 
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['view_count', 'created_at', 'updated_at']

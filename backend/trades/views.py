@@ -25,6 +25,11 @@ from rest_framework.permissions import IsAuthenticated
 # DRF-spectacular
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
+# 수정용 조회 view
+from rest_framework.generics import RetrieveAPIView
+from .serializers import TradeEditSerializer
+
+
 class TradePagination(PageNumberPagination):
     page_size = 2                   # 한 페이지당 개수 (size를 요청 안 했을 경우, 한 페이지당 개수)
     page_query_param = "page"         # ?page=1
@@ -273,3 +278,11 @@ class TradeDetailView(RetrieveUpdateDestroyAPIView):
     # 우리가 따로 안 적어도 부모 클래스(DestroyAPIView)가 
     # 내부적으로 'destroy' 함수를 실행해서 DB에서 싹 지워줍니다.
 
+
+class TradeEditRetrieveView(RetrieveAPIView):
+    """수정 페이지용 조회 - 본인만 접근 가능"""
+    queryset = Trade.objects.all()
+    serializer_class = TradeEditSerializer
+    permission_classes = [IsOwnerOrReadOnly]  # 본인만 접근
+    lookup_field = 'id'
+    lookup_url_kwarg = 'trade_id'
