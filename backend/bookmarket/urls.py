@@ -29,6 +29,7 @@ urlpatterns = [
     # swagger UI
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/chat/', include('chat.urls')),
 ]
 # 개발 환경에서 미디어 파일 서빙
 if settings.DEBUG:
