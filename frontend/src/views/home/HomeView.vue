@@ -1,18 +1,18 @@
 <template>
-  <div>홈</div>
-  <BookCaracel :books="bestSellers" title="알라딘 베스트셀러" />
+  <main class="px-5">
+    <!-- AI 도서 추천 섹션 -->
+    <AiBookRecommendSection />
+
+    <!-- 도서 리스트 섹션 -->
+    <BookListSection />
+
+    <!-- 최신 중고거래 섹션 -->
+    <RecentTradesSection />
+  </main>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import BookCaracel from './components/BookCaracel.vue'
-import { getBestSellerList } from '@/api/book'
-
-const bestSellers = ref([])
-
-onMounted(async () => {
-  const bestSellersData = await getBestSellerList()
-  console.log(bestSellersData)
-  bestSellers.value = bestSellersData
-})
+import AiBookRecommendSection from './components/AiBookRecommendSection.vue'
+import BookListSection from './components/BookListSection.vue'
+import RecentTradesSection from './components/RecentTradesSection.vue'
 </script>

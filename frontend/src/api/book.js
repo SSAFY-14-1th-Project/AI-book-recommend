@@ -94,3 +94,17 @@ export const autocompleteBook = async (query) => {
   })
   return response.data
 }
+
+/**
+ * AI 도서 추천
+ * POST /api/books/recommend/
+ * @param {Object} params - 추천 파라미터
+ * @param {Array<number>} params.category_ids - 선택한 카테고리 ID 배열
+ * @param {string} params.user_prompt - 사용자 요청 프롬프트
+ * @returns {Object} AI 추천 도서 목록 및 추천 이유
+ */
+export const getAIRecommendation = async (params) => {
+  const response = await client.post('/api/books/recommend/', params)
+  console.log(response)
+  return response.data
+}

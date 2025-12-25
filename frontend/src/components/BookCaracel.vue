@@ -1,8 +1,11 @@
 <template>
-  <div class="relative bg-base-200 rounded-box p-6">
+  <div class="relative bg-base-200 rounded-box px-6 py-3">
     <!-- 헤더 -->
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-base-content">{{ title }}</h2>
+    <div class="flex justify-between items-center mb-3">
+      <div class="flex flex-col gap-1">
+        <h3 class="text-xl font-bold text-base-content">{{ title }}</h3>
+        <p class="text-sm">{{ description }}</p>
+      </div>
 
       <!-- 커스텀 네비게이션 버튼 -->
       <div class="flex gap-2">
@@ -50,7 +53,7 @@
     </div>
 
     <!-- Swiper 캐러셀 -->
-    <swiper
+    <Swiper
       :modules="modules"
       :slides-per-view="slidesPerView"
       :slides-per-group="slidesPerGroup"
@@ -65,63 +68,17 @@
       @swiper="onSwiper"
     >
       <!-- 로딩 상태 -->
-      <swiper-slide v-if="loading">
-        <div class="card bg-base-100 shadow-xl h-96 animate-pulse">
-          <div class="bg-base-300 h-64"></div>
-          <div class="card-body p-4">
-            <div class="h-4 bg-base-300 rounded w-3/4 mb-2"></div>
-            <div class="h-3 bg-base-300 rounded w-1/2"></div>
-          </div>
-        </div>
-      </swiper-slide>
+      <template v-if="loading">
+        <SwiperSlide v-for="_idx in 6">
+          <BookCardSkeleton />
+        </SwiperSlide>
+      </template>
 
       <!-- 도서 슬라이드 -->
-      <swiper-slide v-for="book in props.books" :key="book.id" class="pt-3">
-        <router-link :to="`/books/${book.id}`" class="block h-full">
-          <div
-            class="card bg-base-100 shadow-xl h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer"
-          >
-            <!-- 순위 배지 -->
-            <div class="absolute top-2 left-2 z-10">
-              <div class="badge badge-primary badge-lg font-bold">{{ book.bestRank }}위</div>
-            </div>
-
-            <!-- 도서 표지 -->
-            <figure class="px-2 pt-2 relative overflow-hidden bg-base-200">
-              <img
-                :src="book.cover || '/placeholder-book.png'"
-                :alt="book.title"
-                class="rounded-lg h-64 w-full object-contain transition-transform"
-                @error="handleImageError"
-              />
-            </figure>
-
-            <!-- 도서 정보 -->
-            <div class="card-body p-4">
-              <h3 class="card-title text-sm line-clamp-2 min-h-[2.5rem]">
-                {{ book.title }}
-              </h3>
-              <p class="text-xs text-base-content/70 line-clamp-1">{{ book.author }}</p>
-
-              <!-- 평점 -->
-              <div class="flex items-center gap-1 mt-2">
-                <div class="rating rating-sm">
-                  <input
-                    type="radio"
-                    class="mask mask-star-2 bg-warning"
-                    disabled
-                    :checked="book.average_rating > 0"
-                  />
-                </div>
-                <span class="text-xs font-semibold">
-                  {{ book.customerReviewRank ? book.customerReviewRank.toFixed(1) : '0.0' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </router-link>
-      </swiper-slide>
-    </swiper>
+      <SwiperSlide v-for="book in props.books" :key="book.id" class="pt-3">
+        <BookCard :book="book" :showRank="true" />
+      </SwiperSlide>
+    </Swiper>
 
     <!-- 페이지네이션 (선택사항) -->
     <div v-if="!loading && props.books.length > 0" class="flex justify-center mt-6 gap-2">
@@ -177,6 +134,8 @@ import { Navigation } from 'swiper/modules'
 // Swiper 스타일 임포트
 import 'swiper/css'
 import 'swiper/css/navigation'
+import BookCardSkeleton from './BookCardSkeleton.vue'
+import BookCard from './BookCard.vue'
 
 // Props 정의
 const props = defineProps({
@@ -188,6 +147,10 @@ const props = defineProps({
   },
   // 캐러셀 제목
   title: {
+    type: String,
+    default: '',
+  },
+  description: {
     type: String,
     default: '',
   },

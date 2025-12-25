@@ -3,7 +3,9 @@
     "allow": [
       "Bash(python manage.py startapp:*)",
       "Bash(python manage.py:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(mkdir:*)",
+      "Bash(dir:*)"
     ]
   }
 }

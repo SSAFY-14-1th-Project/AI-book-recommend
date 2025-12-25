@@ -137,10 +137,10 @@ class TradeSearchAPIView(APIView):
         # =====================
         # 📦 거래 상태 (기본: 판매중)
         # =====================
-        # '거래 가능만 보기' 버튼 생성 : 체크 시 available만, 체크 안 할 시 'available', 'reserved', 'sold' 전부 다
+        # 거래 상태 필터링
         status = request.query_params.get("status")
-        if status == "available":
-            queryset = queryset.filter(status="available")
+        if status:
+            queryset = queryset.filter(status=status)
 
         # =====================
         # 📍 거래 지역

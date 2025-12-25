@@ -36,3 +36,9 @@ export const getUser = async () => {
   const user = await client.get('/api/accounts/profile/')
   return user.data
 }
+
+// 프로필 수정 (닉네임, 나이, MBTI)
+export const updateProfile = async (profileData) => {
+  const response = await client.patch('/api/accounts/profile/update/', profileData)
+  return response.data
+}
