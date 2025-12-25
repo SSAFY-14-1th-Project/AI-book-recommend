@@ -313,8 +313,6 @@ onDeactivated(() => {
         categories: [],
         adult: false,
       }
-    } else {
-      console.log('[BookView] 상태 유지 (BookDetail로 이동)')
     }
   }, 0)
 })
