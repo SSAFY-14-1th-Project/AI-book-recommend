@@ -230,6 +230,7 @@ CORS_ALLOW_HEADERS = [
 
 ASGI_APPLICATION = 'bookmarket.asgi.application'
 
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
