@@ -23,6 +23,23 @@ const router = createRouter({
           name: 'signup',
           component: () => import('@/views/SignupView.vue'),
         },
+        // 추가
+        {
+          path: 'trades',
+          name: 'trade-list',
+          component: () => import('@/views/TradeListView.vue'),
+        },
+        {
+          path: 'trades/create',
+          name: 'trade-create',
+          component: () => import('@/views/TradeCreateView.vue'),
+          meta: { requiresAuth: true }  // 로그인 필요
+        },
+        {
+          path: 'trades/:id',
+          name: 'trade-detail',
+          component: () => import('@/views/TradeDetailView.vue'),
+        },
       ],
     },
   ],
