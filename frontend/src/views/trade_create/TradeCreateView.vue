@@ -43,6 +43,7 @@
           v-model:price="form.price"
           v-model:region="form.region"
           v-model:kakao-chat-url="form.kakaoChatUrl"
+          :book-price-standard="selectedBook?.priceStandard"
         />
 
         <!-- 4. 이미지 업로드 -->

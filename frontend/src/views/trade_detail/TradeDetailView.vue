@@ -30,7 +30,10 @@
             :trade-id="trade.id"
             :is-owner="isOwner"
             :kakao-chat-url="trade.kakaoChatUrl || trade.kakao_chat_url"
+            :status="trade.status"
+            :is-logged-in="!!loginStore.user"
             @delete="handleDelete"
+            @status-change="handleStatusChange"
           />
         </div>
       </div>
@@ -66,7 +69,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useLoginStore } from '@/stores/loginStore'
 import { useToastStore } from '@/stores/toastStore'
-import { getTradeDetail, deleteTrade as deleteTradeApi } from '@/api/trades'
+import { getTradeDetail, deleteTrade as deleteTradeApi, updateTrade } from '@/api/trades'
 import TradeDetailHeader from './components/TradeDetailHeader.vue'
 import TradeDetailImage from './components/TradeDetailImage.vue'
 import TradeDetailInfo from './components/TradeDetailInfo.vue'
@@ -115,6 +118,56 @@ const handleDelete = async () => {
   } catch (error) {
     console.error('거래 삭제 실패:', error)
     toastStore.showToast('거래 삭제에 실패했습니다.', 'error')
+  }
+}
+
+// 판매 상태 변경
+const handleStatusChange = async (newStatus) => {
+  try {
+    // 현재 상태와 동일하면 변경하지 않음
+    if (trade.value.status === newStatus) {
+      return
+    }
+
+    // FormData 생성 (기존 필수 데이터 포함)
+    const formData = new FormData()
+    formData.append('title', trade.value.title)
+    formData.append('content', trade.value.content)
+    formData.append('region', trade.value.region)
+    formData.append('status', newStatus)
+    formData.append('saleType', trade.value.saleType || trade.value.sale_type || 'sale')
+    formData.append('price', trade.value.price || 0)
+
+    // 선택 항목
+    if (trade.value.kakaoChatUrl || trade.value.kakao_chat_url) {
+      formData.append('kakaoChatUrl', trade.value.kakaoChatUrl || trade.value.kakao_chat_url)
+    }
+
+    // API 호출
+    await updateTrade(trade.value.id, formData)
+
+    // 상태 업데이트
+    trade.value.status = newStatus
+
+    // 상태별 메시지
+    const statusMessages = {
+      available: '판매중으로 변경되었습니다.',
+      reserved: '예약중으로 변경되었습니다.',
+      sold: '판매완료로 변경되었습니다.',
+    }
+
+    toastStore.showToast(statusMessages[newStatus] || '상태가 변경되었습니다.', 'success')
+  } catch (error) {
+    console.error('상태 변경 실패:', error)
+
+    // 에러 메시지 처리
+    if (error.response?.data) {
+      const errors = error.response.data
+      const message = Object.values(errors).flat().join(', ')
+      toastStore.showToast(`상태 변경 실패: ${message}`, 'error')
+    } else {
+      toastStore.showToast('상태 변경에 실패했습니다. 다시 시도해주세요.', 'error')
+    }
   }
 }
 

@@ -107,6 +107,9 @@
         <div v-if="saleType === 'sale'" class="form-control">
           <label class="label">
             <span class="label-text font-medium">판매 가격</span>
+            <span v-if="bookPriceStandard" class="label-text-alt text-primary font-semibold">
+              도서 정가: {{ bookPriceStandard.toLocaleString() }}원
+            </span>
           </label>
           <label class="input-group">
             <input
@@ -123,6 +126,15 @@
           <label class="label">
             <span class="label-text-alt text-base-content/50">
               {{ price > 0 ? price.toLocaleString() + '원' : '가격을 입력하세요' }}
+            </span>
+            <span v-if="bookPriceStandard && price > 0" class="label-text-alt">
+              <span v-if="price < bookPriceStandard" class="text-success font-semibold">
+                {{ Math.round(((bookPriceStandard - price) / bookPriceStandard) * 100) }}% 할인
+              </span>
+              <span v-else-if="price > bookPriceStandard" class="text-warning">
+                정가보다 {{ Math.round(((price - bookPriceStandard) / bookPriceStandard) * 100) }}% 높음
+              </span>
+              <span v-else class="text-base-content/50">정가와 동일</span>
             </span>
           </label>
         </div>
@@ -220,6 +232,10 @@ defineProps({
   kakaoChatUrl: {
     type: String,
     default: '',
+  },
+  bookPriceStandard: {
+    type: Number,
+    default: null,
   },
 })
 
