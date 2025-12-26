@@ -21,6 +21,12 @@ export const refreshToken = async (refreshToken) => {
   return response.data
 }
 
+// 내 프로필 조회
+export const getProfile = async () => {
+  const response = await client.get('/api/accounts/profile/')
+  return response.data
+}
+
 // 로그아웃
 export const logout = async () => {
   const loginStore = useLoginStore()
