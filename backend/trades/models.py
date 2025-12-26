@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
 from books.models import Book
-
+# 이미지 리사이징
+from PIL import Image
 
 class Trade(models.Model):
     """중고거래"""
@@ -100,3 +101,12 @@ class Trade(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        if self.image:
+            img = Image.open(self.image.path)
+            if img.width > 800 or img.height > 800:
+                img.thumbnail((800, 800))
+                img.save(self.image.path)

@@ -29,3 +29,8 @@ export const deleteTrade = (tradeId) => {
 export const searchTrades = (params) => {
   return client.get('/api/trades/search/', { params })
 }
+
+// 중고거래 수정용 조회 (kakao_chat_url 포함)
+export const getTradeForEdit = (tradeId) => {
+  return client.get(`/api/trades/${tradeId}/edit/`)
+}

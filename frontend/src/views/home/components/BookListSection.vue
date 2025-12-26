@@ -15,12 +15,12 @@
     />
 
     <!-- 높은 평점 도서 -->
-    <BookCaracel
+    <!-- <BookCaracel
       title="⭐ 높은 평점 도서"
       description="독자들이 가장 높게 평가한 책들"
       :books="highRatedBooks"
       :loading="highRatedBooksLoading"
-    />
+    /> -->
 
     <!-- 최신 출간 도서 -->
     <BookCaracel

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TradeDetailView, TradeSearchAPIView
+from .views import TradeDetailView, TradeSearchAPIView, TradeEditRetrieveView
 from . import views
 app_name = 'trades'
 
@@ -11,4 +11,6 @@ urlpatterns = [
     path('create/<int:book_pk>/', views.trade_create, name='trade_create'),
     # 게시글 상세, 수정, 삭제: /api/trades/<id>/
     path('<int:trade_id>/', TradeDetailView.as_view(), name='trade_detail'),
+    path('<int:trade_id>/edit/', TradeEditRetrieveView.as_view(), name='trade_edit_retrieve'),
+
 ]
