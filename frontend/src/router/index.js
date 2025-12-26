@@ -62,25 +62,25 @@ const router = createRouter({
         // 추가
         {
           path: 'trades',
-          name: 'trade-list',
-          component: () => import('@/views/TradeListView.vue'),
+          name: 'trade',
+          component: () => import('@/views/trade/TradeView.vue'),
         },
         {
           path: 'trades/create',
-          name: 'trade-create',
-          component: () => import('@/views/TradeCreateView.vue'),
+          name: 'tradeCreate',
+          component: () => import('@/views/trade_create/TradeCreateView.vue'),
           meta: { requiresAuth: true }  // 로그인 필요
         },
         {
           path: 'trades/:id',
-          name: 'trade-detail',
-          component: () => import('@/views/TradeDetailView.vue'),
+          name: 'tradeDetail',
+          component: () => import('@/views/trade_detail/TradeDetailView.vue'),
           meta: { requiresAuth: true },
         },
         {
           path: 'trades/:id/edit',
-          name: 'trade-edit',
-          component: () => import('@/views/TradeEditView.vue'),
+          name: 'tradeEdit',
+          component: () => import('@/views/trade_edit/TradeEditView.vue'),
           meta: { requiresAuth: true }
         },
       ],
